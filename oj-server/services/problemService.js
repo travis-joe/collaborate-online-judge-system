@@ -1,6 +1,4 @@
-import Problem from './models/problem.model';
-
-export const PROBLEMS: Problem[] = [
+const problems = [
   {
     id: 1,
     name: 'Two Sum',
@@ -43,3 +41,33 @@ export const PROBLEMS: Problem[] = [
     difficulty: 'super'
   }
 ];
+
+const ProblemModel = require('../models/problemModel');
+
+const getProblems = function () {
+  return new Promise(async (resolve, reject) => {
+    let problems = await ProblemModel.find();
+    resolve(problems);
+  })
+};
+
+const getProblem = function (id) {
+  return new Promise(async (resolve, reject) => {
+    let problem = ProblemModel.findOne({id: id});
+    resolve(problem);
+  })
+};
+const addProblem = function (newProblem) {
+  return new Promise(async (resolve, reject) => {
+    const finded = await ProblemModel.findOne({name: newProblem.name});
+    if (finded) {
+      reject(finded.name + ' is existed');
+    } else {
+      newProblem.id = await ProblemModel.count() + 1;
+      const mongoProblem = new ProblemModel(newProblem);
+      await mongoProblem.save();
+      resolve(newProblem);
+    }
+  })
+};
+module.exports = {getProblems, getProblem, addProblem};
