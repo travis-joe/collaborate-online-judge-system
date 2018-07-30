@@ -63,7 +63,7 @@ const addProblem = function (newProblem) {
     if (finded) {
       reject(finded.name + ' is existed');
     } else {
-      newProblem.id = await ProblemModel.count() + 1;
+      newProblem.id = await ProblemModel.countDocuments() + 1;
       const mongoProblem = new ProblemModel(newProblem);
       await mongoProblem.save();
       resolve(newProblem);

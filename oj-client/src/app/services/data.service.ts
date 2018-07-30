@@ -5,7 +5,9 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 
-const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+const httpOptions = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+};
 
 @Injectable({providedIn: 'root'})
 export class DataService {
@@ -30,7 +32,7 @@ export class DataService {
   }
 
   addProblem(problem: Problem): Observable<any> {
-    return this.http.post(`api/v1/problems`, problem, headers)
+    return this.http.post(`api/v1/problems`, problem, httpOptions)
       .pipe(
         catchError(this.handleError('addProblem', []))
       );
