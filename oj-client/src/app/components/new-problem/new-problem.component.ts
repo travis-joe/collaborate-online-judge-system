@@ -1,11 +1,11 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
 import Problem from '../../models/problem.model';
-
+import {Router} from '@angular/router';
 const DEFAULT_PROBLEM: Problem = Object.freeze({
   id: 0,
   name: '',
   desc: '',
-  difficulty: 'Easy'
+  difficulty: ''
 });
 
 @Component({
@@ -16,15 +16,17 @@ const DEFAULT_PROBLEM: Problem = Object.freeze({
 export class NewProblemComponent implements OnInit {
   public difficulties: string[] = ['Easy', 'Medium', 'Hard', 'Super'];
   newProblem: Problem = Object.assign({}, DEFAULT_PROBLEM);
-  constructor(@Inject('data') private data) { }
+
+  @Output() add: EventEmitter<Problem> = new EventEmitter();
+
+  constructor(
+    private router: Router,
+  ) { }
 
   ngOnInit() {
   }
-  addProblem(): void {
-    this.data.addProblem(this.newProblem)
-      .subscribe(problem => {
-        this.data.getProblems();
-        this.newProblem = Object.assign({}, DEFAULT_PROBLEM);
-      });
+  addProblem() {
+    this.add.emit(this.newProblem);
+    this.newProblem = Object.assign({}, DEFAULT_PROBLEM);
   }
 }
