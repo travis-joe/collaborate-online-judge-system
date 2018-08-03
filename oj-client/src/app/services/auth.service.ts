@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
 import {Router} from '@angular/router';
+import * as auth0 from 'auth0-js';
+import {concat} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
+  userProfile: any;
   auth0 = new auth0.WebAuth({
     clientID: '4f5VJHDtKqEAIc71A93GFFGhFjMnYOsD',
     domain: 'wee.auth0.com',
     responseType: 'token id_token',
     audience: 'https://wee.auth0.com/userinfo',
-    redirectUri: 'http://localhost:3000/callback',
-    scope: 'openid'
+    redirectUri: 'http://localhost:3000',
+    scope: 'openid profile email read:messages write:messages'
   });
 
   constructor(public router: Router) {}
@@ -21,14 +23,31 @@ export class AuthService {
     this.auth0.authorize();
   }
 
+  public getProfile(cb): void {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      throw new Error('Access Token must exist to fetch profile');
+    }
+
+    const self = this;
+    this.auth0.client.userInfo(accessToken, (err, profile) => {
+      console.log(profile);
+      if (profile) {
+        self.userProfile = profile;
+      }
+      cb(err, profile);
+    });
+  }
+
   public handleAuthentication(): void {
     this.auth0.parseHash((err, authResult) => {
+      console.log(authResult);
       if (authResult && authResult.accessToken && authResult.idToken) {
         window.location.hash = '';
         this.setSession(authResult);
-        this.router.navigate(['/home']);
+        this.router.navigate(['/']).catch(e => console.log(e));
       } else if (err) {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/']).catch(e => console.log(e));
         console.log(err);
       }
     });
